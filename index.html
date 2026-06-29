@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Holiday Work Bonus</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --red:#C8102E;--red-dark:#9e0d24;--red-light:#fdeef1;
+    --navy:#1a2340;--navy-mid:#243055;--gold:#F0A500;--gold-light:#fff8e6;
+    --bg:#f5f6fa;--card:#fff;--text:#1a2340;--muted:#6b7a99;--border:#e2e6f0;
+    --green:#16a34a;--green-light:#f0fdf4;--radius:12px;
+  }
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  .screen{display:none;min-height:100vh;}
+  .screen.active{display:flex;align-items:center;justify-content:center;padding:20px;}
+  .auth-bg{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 60%,#1e3a5f 100%);}
+  .box{background:white;border-radius:16px;padding:36px 32px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.25);}
+  .logo-row{display:flex;align-items:center;gap:10px;margin-bottom:24px;}
+  .logo-mark{width:40px;height:40px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:18px;flex-shrink:0;}
+  .logo-text h1{font-size:16px;font-weight:700;color:var(--navy);}
+  .logo-text p{font-size:11px;color:var(--muted);}
+  .screen-title{font-size:20px;font-weight:700;margin-bottom:4px;}
+  .screen-sub{font-size:13px;color:var(--muted);margin-bottom:22px;}
+  .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .role-card{border:2px solid var(--border);border-radius:12px;padding:16px 14px;cursor:pointer;transition:all 0.15s;text-align:center;background:white;}
+  .role-card:hover{border-color:var(--red);background:var(--red-light);}
+  .role-card .icon{font-size:28px;margin-bottom:8px;}
+  .role-card .rlabel{font-size:13px;font-weight:600;}
+  .role-card .desc{font-size:11px;color:var(--muted);margin-top:2px;}
+  .role-card.pit-card{grid-column:1/-1;display:flex;align-items:center;gap:14px;text-align:left;padding:14px 18px;}
+  .role-card.pit-card .icon{font-size:24px;margin-bottom:0;flex-shrink:0;}
+  .pin-row{display:flex;gap:8px;justify-content:center;margin:20px 0;}
+  .pin-box{width:48px;height:56px;border:2px solid var(--border);border-radius:10px;font-size:22px;font-weight:700;text-align:center;font-family:'Courier New',monospace;outline:none;transition:border-color 0.15s;color:var(--navy);}
+  .pin-box:focus{border-color:var(--red);}
+  .pin-box.filled{border-color:var(--navy);background:#f8f9fc;}
+  .pin-box.error{border-color:#ef4444;background:#fff5f5;animation:shake 0.3s;}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .pin-hint{text-align:center;font-size:12px;color:var(--muted);margin-bottom:16px;}
+  .pin-hint.err{color:#ef4444;font-weight:500;}
+  .field{margin-bottom:14px;}
+  .field label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px;}
+  .field input,.field select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;color:var(--text);outline:none;transition:border-color 0.15s;background:white;}
+  .field input{font-family:'Courier New',monospace;letter-spacing:2px;}
+  .field input:focus,.field select:focus{border-color:var(--red);}
+  .fhint{font-size:11px;margin-top:4px;color:var(--muted);}
+  .fhint.ok{color:var(--green);font-weight:500;}
+  .fhint.err{color:#ef4444;font-weight:500;}
+  .prev-box{background:var(--bg);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:13px;display:none;}
+  .prev-name{font-weight:600;margin-bottom:3px;}
+  .prev-info{font-size:12px;color:var(--muted);}
+  .wrong-msg{display:none;background:#fff5f5;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:12px;color:#ef4444;margin-bottom:14px;}
+  .btn{width:100%;padding:12px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:inherit;}
+  .btn-red{background:var(--red);color:white;}
+  .btn-red:hover{background:var(--red-dark);}
+  .btn-red:disabled{background:#ccc;cursor:not-allowed;}
+  .back-link{text-align:center;margin-top:14px;font-size:12px;color:var(--muted);cursor:pointer;}
+  .back-link span{color:var(--red);font-weight:600;}
+  .info-note{background:var(--gold-light);border:1px solid #fcd34d;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:14px;line-height:1.8;}
+  .upload-area{border:2px dashed var(--border);border-radius:var(--radius);padding:18px;text-align:center;cursor:pointer;transition:all 0.15s;margin-bottom:10px;}
+  .upload-area:hover{border-color:var(--red);background:var(--red-light);}
+  .upload-area.done{border-color:var(--green);background:var(--green-light);cursor:default;}
+  .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+  .badge-blue{background:#eff6ff;color:#1d4ed8;}
+  .step-indicator{display:flex;align-items:center;gap:6px;margin-bottom:20px;font-size:12px;}
+  .step{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0;}
+  .step.active{background:var(--red);border-color:var(--red);color:white;}
+  .step.done{background:var(--green);border-color:var(--green);color:white;}
+  .step-line{flex:1;height:2px;background:var(--border);}
+  .step-line.done{background:var(--green);}
+  #app{display:none;}
+  .header{background:var(--navy);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;border-bottom:3px solid var(--red);}
+  .header-logo{display:flex;align-items:center;gap:10px;}
+  .hdr-mark{width:32px;height:32px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:14px;}
+  .header-user{display:flex;align-items:center;gap:10px;}
+  .user-chip{background:#243055;border-radius:8px;padding:6px 12px;font-size:12px;color:#c8d4f0;display:flex;align-items:center;gap:6px;}
+  .user-chip strong{color:white;}
+  .role-badge{background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;text-transform:uppercase;}
+  .logout-btn{background:transparent;border:1.5px solid #3a4a6b;color:#8fa0c0;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit;}
+  .logout-btn:hover{border-color:#8fa0c0;color:white;}
+  .nav{background:white;border-bottom:1px solid var(--border);padding:0 24px;display:flex;overflow-x:auto;}
+  .nav-tab{padding:13px 16px;font-size:13px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;transition:all 0.15s;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;}
+  .nav-tab.active{color:var(--red);border-bottom-color:var(--red);}
+  .main{padding:20px 24px;max-width:1000px;margin:0 auto;}
+  .card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);box-shadow:0 2px 16px rgba(26,35,64,0.08);padding:20px;margin-bottom:16px;}
+  .card-title{font-size:15px;font-weight:600;margin-bottom:3px;}
+  .card-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+  .hol-banner{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);border-radius:var(--radius);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .hol-banner h2{color:white;font-size:17px;font-weight:700;}
+  .hol-banner p{color:#8fa0c0;font-size:12px;margin-top:2px;}
+  .hol-badge{background:var(--gold);color:var(--navy);font-size:11px;font-weight:700;padding:5px 13px;border-radius:20px;}
+  .fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+  .fg label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
+  .fg input,.fg select{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);background:white;outline:none;transition:border-color 0.15s;}
+  .fg input:focus,.fg select:focus{border-color:var(--red);}
+  .fg input[readonly]{background:#f8f9fc;color:var(--muted);}
+  .ab{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all 0.15s;}
+  .ab-red{background:var(--red);color:white;}.ab-red:hover{background:var(--red-dark);}.ab-red:disabled{background:#ccc;cursor:not-allowed;}
+  .ab-outline{background:white;color:var(--navy);border:1.5px solid var(--border);}
+  .ab-green{background:var(--green);color:white;}
+  .ab-gold{background:var(--gold);color:var(--navy);}
+  .ab-danger{background:#fff5f5;color:#ef4444;border:1.5px solid #fca5a5;}
+  .ab-sm{padding:5px 12px;font-size:12px;border-radius:6px;}
+  .tbl{width:100%;border-collapse:collapse;font-size:13px;}
+  .tbl th{text-align:left;padding:9px 10px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid var(--border);}
+  .tbl td{padding:11px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  .tbl tr:last-child td{border-bottom:none;}
+  .tbl tr:hover td{background:#fafbfd;}
+  .bdg{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+  .bdg-pend{background:#fff7ed;color:#c2410c;}
+  .bdg-appr{background:var(--green-light);color:var(--green);}
+  .bdg-rej{background:#fff5f5;color:#ef4444;}
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+  .stat{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;}
+  .stat-n{font-size:26px;font-weight:700;}
+  .stat-l{font-size:12px;color:var(--muted);margin-top:2px;}
+  .stat.red .stat-n{color:var(--red);}.stat.green .stat-n{color:var(--green);}.stat.gold .stat-n{color:var(--gold);}
+  .sbox{background:var(--green-light);border:1.5px solid #86efac;border-radius:var(--radius);padding:18px;text-align:center;display:none;}
+  .sbox h3{color:var(--green);font-size:15px;margin-bottom:3px;}
+  .ebar{background:var(--gold-light);border:1.5px solid #fcd34d;border-radius:var(--radius);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .ebar p{font-size:13px;color:#92400e;font-weight:500;}
+  .pg{display:none;}.pg.active{display:block;}
+  .empty{text-align:center;padding:36px;color:var(--muted);font-size:13px;}
+  .empty-i{font-size:30px;margin-bottom:8px;}
+  .ttb{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;flex-wrap:wrap;}
+  .si{padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;width:200px;font-family:inherit;outline:none;}
+  .si:focus{border-color:var(--red);}
+  .chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .chip{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;}
+  .chip span{color:var(--muted);font-size:10px;display:block;text-transform:uppercase;letter-spacing:0.4px;}
+  .chip strong{color:var(--text);}
+  .hol-list{display:flex;flex-direction:column;gap:10px;}
+  .hol-item{border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;background:white;}
+  .hol-item.actv{border-color:#bfdbfe;background:#eff6ff;}
+  .hol-item h4{font-size:14px;font-weight:600;margin-bottom:3px;}
+  .hol-item p{font-size:12px;color:var(--muted);}
+  .date-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+  .dc{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 9px;font-size:11px;}
+  .hol-acts{display:flex;gap:6px;flex-shrink:0;}
+  .modal-ov{display:none;position:fixed;inset:0;background:rgba(26,35,64,0.5);z-index:300;align-items:center;justify-content:center;}
+  .modal-ov.open{display:flex;}
+  .modal{background:white;border-radius:var(--radius);padding:24px;width:100%;max-width:460px;box-shadow:0 8px 32px rgba(26,35,64,0.2);max-height:90vh;overflow-y:auto;}
+  .modal h3{font-size:16px;font-weight:700;margin-bottom:12px;}
+  .modal-acts{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+  .dil{display:flex;flex-direction:column;gap:7px;margin-top:4px;}
+  .dir{display:flex;gap:6px;align-items:center;}
+  .dir input{flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;}
+  .dir input:focus{border-color:var(--red);}
+  .rdb{background:none;border:none;color:#ef4444;font-size:18px;cursor:pointer;padding:2px 6px;}
+  .adl{font-size:12px;color:var(--red);cursor:pointer;font-weight:600;margin-top:6px;display:inline-block;}
+  .id-mono{font-family:'Courier New',monospace;font-weight:700;letter-spacing:1px;}
+  @media(max-width:600px){.box{padding:24px 16px;}.header{padding:10px 14px;height:auto;flex-wrap:wrap;gap:8px;}.main{padding:14px;}.stat-row{grid-template-columns:1fr;}.pin-box{width:40px;height:48px;font-size:18px;}}
+</style>
+</head>
+<body>
+
+<!-- S1: ROLE -->
+<div id="s-role" class="screen auth-bg active">
+  <div class="box">
+    <div class="logo-row"><div class="logo-mark">&#916;</div><div class="logo-text"><h1>Holiday Work Bonus</h1><p>Registration &amp; Approval System</p></div></div>
+    <div class="screen-title">Who are you?</div>
+    <div class="screen-sub">Select your role to continue</div>
+    <div class="role-grid">
+      <div class="role-card" onclick="goRole('employee')"><div class="icon">&#128100;</div><div class="rlabel">Employee</div><div class="desc">Register to work on holiday</div></div>
+      <div class="role-card" onclick="goRole('manager')"><div class="icon">&#127970;</div><div class="rlabel">Plant Manager</div><div class="desc">Approve registrations</div></div>
+      <div class="role-card" onclick="goRole('hr')"><div class="icon">&#128202;</div><div class="rlabel">HR / Payroll</div><div class="desc">View &amp; export payroll list</div></div>
+      <div class="role-card pit-card" onclick="goRole('admin')"><div class="icon">&#9881;&#65039;</div><div><div class="rlabel">PIT Admin</div><div class="desc">Upload data &amp; manage holidays</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S2: PIN -->
+<div id="s-pin" class="screen auth-bg">
+  <div class="box">
+    <div class="logo-row"><div class="logo-mark">&#916;</div><div class="logo-text"><h1>Verify Access</h1><p>6-digit PIN required</p></div></div>
+    <div class="screen-title" id="pin-role-label"></div>
+    <div class="screen-sub">Enter the 6-digit PIN to verify your role</div>
+    <div class="pin-row">
+      <input class="pin-box" type="password" maxlength="1" inputmode="numeric" id="p0" oninput="pinInput(0)">
+      <input class="pin-box" type="password" maxlength="1" inputmode="numeric" id="p1" oninput="pinInput(1)">
+      <input class="pin-box" type="password" maxlength="1" inputmode="numeric" id="p2" oninput="pinInput(2)">
+      <input class="pin-box" type="password" maxlength="1" inputmode="numeric" id="p3" oninput="pinInput(3)">
+      <input class="pin-box" type="password" maxlength="1" inputmode="numeric" id="p4" oninput="pinInput(4)">
+      <input class="pin-box" type="password" maxlength="1" inputmode="numeric" id="p5" oninput="pinInput(5)">
+    </div>
+    <div class="pin-hint" id="pin-hint">Enter all 6 digits</div>
+    <button class="btn btn-red" id="pin-btn" disabled onclick="verifyPin()">Verify PIN &#8594;</button>
+    <div class="back-link" onclick="showScreen('s-role')">&#8592; <span>Back</span></div>
+  </div>
+</div>
+
+<!-- S3: PIT UPLOAD -->
+<div id="s-upload" class="screen auth-bg">
+  <div class="box" style="max-width:460px">
+    <div class="logo-row"><div class="logo-mark">&#916;</div><div class="logo-text"><h1>PIT Admin</h1><p>Step 2 of 3 — Upload Data</p></div></div>
+    <div class="step-indicator">
+      <div class="step done">&#10003;</div><div class="step-line done"></div>
+      <div class="step active">2</div><div class="step-line"></div>
+      <div class="step">3</div>
+    </div>
+    <div class="screen-title">Upload Employee Data</div>
+    <div class="screen-sub">Upload both files. You can also skip and use the built-in sample data.</div>
+    <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">1. Employee List</div>
+    <div class="upload-area" id="up-emp-box" onclick="document.getElementById('csv-emp').click()">
+      <div style="font-size:22px;margin-bottom:4px" id="up-emp-icon">&#128194;</div>
+      <div style="font-size:13px" id="up-emp-label"><strong style="color:var(--red)">Click to upload</strong> employees CSV</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">ID, Name, Factory, Factory Name, Plant Manager, Role</div>
+      <input type="file" id="csv-emp" accept=".csv" style="display:none" onchange="uploadEmp(this)"/>
+    </div>
+    <div id="up-emp-msg" style="display:none;font-size:12px;margin-bottom:10px;padding:8px 12px;border-radius:8px;"></div>
+    <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">2. Plant Manager List</div>
+    <div class="upload-area" id="up-mgr-box" onclick="document.getElementById('csv-mgr').click()">
+      <div style="font-size:22px;margin-bottom:4px" id="up-mgr-icon">&#128194;</div>
+      <div style="font-size:13px" id="up-mgr-label"><strong style="color:var(--red)">Click to upload</strong> managers CSV</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">Name (one column only)</div>
+      <input type="file" id="csv-mgr" accept=".csv" style="display:none" onchange="uploadMgr(this)"/>
+    </div>
+    <div id="up-mgr-msg" style="display:none;font-size:12px;margin-bottom:10px;padding:8px 12px;border-radius:8px;"></div>
+    <div class="info-note">
+      &#128161; <strong>Employee CSV:</strong> <code>ID,Name,Factory,Factory Name,Plant Manager,Role</code><br>
+      &#128161; <strong>Manager CSV:</strong> <code>Name</code> (one name per row)<br>
+      &#128161; <strong>ID format:</strong> 8 digits e.g. <code>00000001</code>
+    </div>
+    <button class="btn btn-red" onclick="goToPitLogin()">Continue to Sign In &#8594;</button>
+    <div class="back-link" onclick="showScreen('s-pin')">&#8592; <span>Back</span></div>
+  </div>
+</div>
+
+<!-- S4: SIGN IN (Employee/HR/PIT) -->
+<div id="s-login" class="screen auth-bg">
+  <div class="box">
+    <div class="logo-row"><div class="logo-mark">&#916;</div><div class="logo-text"><h1>Sign In</h1><p id="login-step-lbl">Enter your 8-digit ID</p></div></div>
+    <div class="screen-title" id="login-role-title"></div>
+    <div class="screen-sub" id="login-sub">Enter your 8-digit Employee ID</div>
+    <div class="field">
+      <label>8-Digit ID</label>
+      <input type="text" id="login-id" placeholder="00000000" oninput="onIdInput(this.value)" maxlength="8" autocomplete="off" inputmode="numeric"/>
+      <div class="fhint" id="id-hint">Enter your 8-digit ID — no password needed</div>
+    </div>
+    <div class="prev-box" id="id-prev"><div class="prev-name" id="prev-name"></div><div class="prev-info" id="prev-info"></div><div style="margin-top:6px" id="prev-badge"></div></div>
+    <div class="wrong-msg" id="wrong-msg"></div>
+    <button class="btn btn-red" id="signin-btn" disabled onclick="doLogin()">Sign In &#8594;</button>
+    <div class="back-link" onclick="backFromLogin()">&#8592; <span>Back</span></div>
+  </div>
+</div>
+
+<!-- S5: MANAGER LOGIN (dropdown) -->
+<div id="s-mgr-login" class="screen auth-bg">
+  <div class="box">
+    <div class="logo-row"><div class="logo-mark">&#916;</div><div class="logo-text"><h1>Plant Manager</h1><p>Select your name to sign in</p></div></div>
+    <div class="screen-title">&#127970; Sign In</div>
+    <div class="screen-sub">Select your name from the list</div>
+    <div class="field">
+      <label>Your Name</label>
+      <select id="mgr-name-sel" onchange="onMgrSelect(this.value)">
+        <option value="">— Select your name —</option>
+      </select>
+      <div class="fhint" id="mgr-hint">Names loaded from manager list uploaded by PIT Admin</div>
+    </div>
+    <div id="mgr-prev" style="display:none;background:var(--bg);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:13px;">
+      <div style="font-weight:600" id="mgr-prev-name"></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px">Plant Manager</div>
+    </div>
+    <button class="btn btn-red" id="mgr-signin-btn" disabled onclick="doMgrLogin()">Sign In &#8594;</button>
+    <div class="back-link" onclick="showScreen('s-pin')">&#8592; <span>Back</span></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="header">
+    <div class="header-logo"><div class="hdr-mark">&#916;</div><div><div style="color:white;font-size:14px;font-weight:600;">Holiday Work Bonus</div><div style="color:#8fa0c0;font-size:11px;">Registration &amp; Approval System</div></div></div>
+    <div class="header-user"><div class="user-chip"><strong id="hdr-name"></strong><span class="role-badge" id="hdr-role"></span></div><button class="logout-btn" onclick="doLogout()">Sign Out</button></div>
+  </div>
+
+  <!-- EMPLOYEE -->
+  <div id="v-employee" style="display:none">
+    <nav class="nav"><button class="nav-tab active" onclick="st('e-reg','employee',event)">Register</button><button class="nav-tab" onclick="st('e-status','employee',event)">My Status</button></nav>
+    <div class="main">
+      <div id="t-e-reg" class="pg active">
+        <div id="no-hol" class="card" style="display:none;text-align:center;padding:32px;color:var(--muted)"><div style="font-size:30px;margin-bottom:8px">&#128197;</div><strong>No holiday registration open right now.</strong><br><span style="font-size:12px">Contact your PIT Admin.</span></div>
+        <div id="hol-open">
+          <div class="hol-banner"><div><h2 id="b-title">&#127881; Holiday Work Registration</h2><p id="b-sub"></p></div><div class="hol-badge">OPEN</div></div>
+          <div class="card">
+            <div class="card-title">Register to Work on Holiday</div><div class="card-sub">Your details are pre-filled. Pick a date and add your reason.</div>
+            <div id="reg-ok" class="sbox"><div style="font-size:28px;margin-bottom:6px">&#9989;</div><h3>Registration Submitted!</h3><p style="font-size:12px;color:#166534">Sent to your plant manager for approval.</p></div>
+            <div id="reg-form">
+              <div class="chip-row" id="emp-chips"></div>
+              <div class="fg"><label>Holiday Date You Will Work *</label><select id="date-sel" onchange="chkReg()"><option value="">— Select date —</option></select></div>
+              <div class="fg"><label>Reason / Work Description *</label><input type="text" id="reg-reason" placeholder="e.g. Production line maintenance..." oninput="chkReg()"/></div>
+              <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="ab ab-red" id="reg-btn" disabled onclick="submitReg()" style="width:auto;padding:10px 24px">Submit Registration</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="t-e-status" class="pg">
+        <div class="card"><div class="card-title">My Registrations</div><div class="card-sub">Track approval status of your requests.</div>
+        <div id="es-empty" class="empty"><div class="empty-i">&#128203;</div>No registrations yet.</div>
+        <div id="es-tbl" style="display:none"><table class="tbl"><thead><tr><th>Holiday</th><th>Submitted</th><th>Factory Name</th><th>Plant Manager</th><th>Status</th></tr></thead><tbody id="es-body"></tbody></table></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANAGER -->
+  <div id="v-manager" style="display:none">
+    <nav class="nav"><button class="nav-tab active" onclick="st('m-pend','manager',event)">Pending</button><button class="nav-tab" onclick="st('m-done','manager',event)">Approved</button></nav>
+    <div class="main">
+      <div id="t-m-pend" class="pg active">
+        <div class="stat-row"><div class="stat red"><div class="stat-n" id="ms-p">0</div><div class="stat-l">Pending</div></div><div class="stat green"><div class="stat-n" id="ms-a">0</div><div class="stat-l">Approved</div></div><div class="stat gold"><div class="stat-n" id="ms-t">0</div><div class="stat-l">Total</div></div></div>
+        <div class="card">
+          <div class="card-title">Pending Approvals — <span id="mgr-name-hdr" style="color:var(--red)"></span></div><div class="card-sub">Employees whose Plant Manager matches your name.</div>
+          <div id="mp-empty" class="empty"><div class="empty-i">&#127881;</div>No pending registrations.</div>
+          <div id="mp-tbl" style="display:none">
+            <div class="ttb"><div style="font-size:12px;color:var(--muted)" id="mp-count"></div><div style="display:flex;gap:6px"><button class="ab ab-sm ab-green" onclick="bulkApp()">&#10003; Approve All</button><button class="ab ab-sm ab-danger" onclick="bulkRej()">&#10007; Reject Selected</button></div></div>
+            <table class="tbl"><thead><tr><th><input type="checkbox" id="chk-all" onchange="togAll(this)" style="accent-color:var(--green);width:15px;height:15px;cursor:pointer"></th><th>ID</th><th>Name</th><th>Factory</th><th>Date</th><th>Reason</th><th>Action</th></tr></thead><tbody id="mp-body"></tbody></table>
+          </div>
+        </div>
+      </div>
+      <div id="t-m-done" class="pg">
+        <div class="card"><div class="card-title">Approved — Ready for HR</div><div class="card-sub">Send to HR/Payroll when finalized.</div>
+        <div id="md-empty" class="empty"><div class="empty-i">&#128203;</div>Nothing approved yet.</div>
+        <div id="md-tbl" style="display:none"><div class="ebar"><p>&#9989; Ready to submit to HR/Payroll</p><button class="ab ab-sm ab-red" onclick="sendHR()">Send to HR &#8594;</button></div><table class="tbl"><thead><tr><th>ID</th><th>Name</th><th>Factory Name</th><th>Date</th><th>Reason</th></tr></thead><tbody id="md-body"></tbody></table></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HR -->
+  <div id="v-hr" style="display:none">
+    <nav class="nav"><button class="nav-tab active" onclick="st('h-dash','hr',event)">Payroll Dashboard</button><button class="nav-tab" onclick="st('h-exp','hr',event)">Export</button></nav>
+    <div class="main">
+      <div id="t-h-dash" class="pg active">
+        <div class="stat-row"><div class="stat green"><div class="stat-n" id="hs-a">0</div><div class="stat-l">For Bonus</div></div><div class="stat red"><div class="stat-n" id="hs-f">0</div><div class="stat-l">Factories</div></div><div class="stat gold"><div class="stat-n" id="hs-p">0</div><div class="stat-l">Still Pending</div></div></div>
+        <div class="card"><div class="card-title">Holiday Bonus Payroll List</div><div class="card-sub">All manager-approved employees across all factories.</div>
+        <div id="hr-empty" class="empty"><div class="empty-i">&#128365;</div>No data from managers yet.</div>
+        <div id="hr-wrap" style="display:none"><div class="ttb"><input type="text" class="si" placeholder="Search name or ID..." oninput="filtHR(this.value)"/><div style="font-size:12px;color:var(--muted)" id="hr-cnt"></div></div>
+        <table class="tbl"><thead><tr><th>ID</th><th>Name</th><th>Factory</th><th>Factory Name</th><th>Plant Manager</th><th>Date</th><th>Approved By</th><th>Status</th></tr></thead><tbody id="hr-body"></tbody></table></div></div>
+      </div>
+      <div id="t-h-exp" class="pg"><div class="card"><div class="card-title">Export Payroll Data</div><div class="card-sub">Download or copy the approved bonus list.</div><div style="display:flex;gap:10px;margin-top:6px"><button class="ab ab-red" onclick="expCSV()" style="width:auto">&#11015; Download CSV</button><button class="ab ab-outline" onclick="copyCl()" style="width:auto">&#128203; Copy</button></div><div id="hr-prev" style="margin-top:18px;overflow-x:auto;font-size:12px;"></div></div></div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="v-admin" style="display:none">
+    <nav class="nav"><button class="nav-tab active" onclick="st('a-hol','admin',event)">&#128197; Holidays</button><button class="nav-tab" onclick="st('a-up','admin',event)">&#128193; Upload Data</button><button class="nav-tab" onclick="st('a-acc','admin',event)">&#128100; Accounts</button></nav>
+    <div class="main">
+      <div id="t-a-hol" class="pg active">
+        <div class="card"><div class="card-title">Holiday Manager</div><div class="card-sub">Create, edit, or delete holidays and their dates.</div><div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button class="ab ab-red" onclick="openHM()" style="width:auto">+ Add Holiday</button></div><div class="hol-list" id="hol-list"></div></div>
+        <div class="card"><div class="card-title">Set Active Holiday</div><div class="card-sub">Only the active holiday is visible to employees.</div><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><select id="act-pick" style="flex:1;min-width:180px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none"><option value="">— None (closed) —</option></select><button class="ab ab-gold" onclick="setAct()" style="width:auto">Set Active</button></div><div style="margin-top:10px;font-size:12px;color:var(--muted)">Active: <strong id="act-lbl" style="color:var(--green)">None</strong></div></div>
+      </div>
+      <div id="t-a-up" class="pg">
+        <div class="card"><div class="card-title">Re-upload Data</div><div class="card-sub">Update employee or manager lists at any time.</div>
+          <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Employee List</div>
+          <div class="upload-area" onclick="document.getElementById('csv-emp2').click()"><div style="font-size:22px;margin-bottom:4px">&#128194;</div><p style="font-size:13px;color:var(--muted)"><strong style="color:var(--red)">Click to re-upload</strong> employees CSV</p><input type="file" id="csv-emp2" accept=".csv" style="display:none" onchange="uploadEmp2(this)"/></div>
+          <div id="up-emp2-msg" style="margin-top:6px;font-size:12px;display:none;margin-bottom:14px;"></div>
+          <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;margin-top:14px">Manager List</div>
+          <div class="upload-area" onclick="document.getElementById('csv-mgr2').click()"><div style="font-size:22px;margin-bottom:4px">&#128194;</div><p style="font-size:13px;color:var(--muted)"><strong style="color:var(--red)">Click to re-upload</strong> managers CSV</p><input type="file" id="csv-mgr2" accept=".csv" style="display:none" onchange="uploadMgr2(this)"/></div>
+          <div id="up-mgr2-msg" style="margin-top:6px;font-size:12px;display:none;"></div>
+        </div>
+        <div class="card"><div class="card-title">CSV Format Guide</div><div style="font-size:12px;color:var(--muted);line-height:2"><strong>Employee CSV:</strong><br><code style="background:var(--bg);padding:4px 8px;border-radius:4px;font-size:11px">ID,Name,Factory,Factory Name,Plant Manager,Role</code><br>Role: <code>employee</code> | <code>hr</code> | <code>admin</code><br><br><strong>Manager CSV:</strong><br><code style="background:var(--bg);padding:4px 8px;border-radius:4px;font-size:11px">Name</code><br>One name per row</div></div>
+      </div>
+      <div id="t-a-acc" class="pg">
+        <div class="card"><div class="card-title">All Employee Accounts</div><div class="card-sub">Users loaded from employee CSV.</div><div class="ttb"><input type="text" class="si" placeholder="Search..." oninput="filtAcc(this.value)"/><div style="font-size:12px;color:var(--muted)" id="acc-cnt"></div></div><table class="tbl"><thead><tr><th>ID</th><th>Name</th><th>Factory</th><th>Factory Name</th><th>Plant Manager</th><th>Role</th></tr></thead><tbody id="acc-body"></tbody></table></div>
+        <div class="card"><div class="card-title">Plant Manager List</div><div class="card-sub">Names from manager CSV.</div><div id="mgr-list-empty" class="empty" style="padding:20px"><div class="empty-i" style="font-size:20px">&#127970;</div>No managers loaded yet.</div><table class="tbl" id="mgr-list-tbl" style="display:none"><thead><tr><th>#</th><th>Name</th></tr></thead><tbody id="mgr-list-body"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-ov" id="hm-modal">
+  <div class="modal">
+    <h3 id="hm-ttl">Add Holiday</h3>
+    <div class="fg" style="margin-bottom:12px"><label>Holiday Name *</label><input type="text" id="hm-name" placeholder="e.g. Songkran, New Year's Day..."/></div>
+    <div class="fg" style="margin-bottom:12px"><label>Year</label><input type="text" id="hm-year" placeholder="e.g. 2025"/></div>
+    <div class="fg"><label>Dates *</label><div class="dil" id="hm-dates"></div><span class="adl" onclick="addDR()">+ Add date</span></div>
+    <div class="modal-acts"><button class="ab ab-outline" onclick="closeHM()" style="width:auto">Cancel</button><button class="ab ab-red" onclick="saveHol()" style="width:auto">Save Holiday</button></div>
+  </div>
+</div>
+
+<script>
+var PINS={manager:'333333',hr:'222222',admin:'111111'};
+var users=[
+  {id:'00000001',name:'Somchai Jaidee',factory:'FA',factoryName:'Factory A',plantMgr:'Sombat Rungrot',role:'employee'},
+  {id:'00000002',name:'Nattaya Srisuk',factory:'FA',factoryName:'Factory A',plantMgr:'Sombat Rungrot',role:'employee'},
+  {id:'00000003',name:'Krit Poompruk',factory:'FB',factoryName:'Factory B',plantMgr:'Piyanut Saengdee',role:'employee'},
+  {id:'00000004',name:'Wanida Thammasak',factory:'FB',factoryName:'Factory B',plantMgr:'Piyanut Saengdee',role:'employee'},
+  {id:'00000008',name:'Lalita Chaiyen',factory:'HQ',factoryName:'HQ',plantMgr:'-',role:'hr'},
+  {id:'00000009',name:'Chalit Wongkham',factory:'HQ',factoryName:'HQ',plantMgr:'ares.sun',role:'admin'},
+];
+var managers=['Sombat Rungrot','Piyanut Saengdee','ares.sun'];
+var holidays=[
+  {id:'h1',name:'Songkran',year:'2025',dates:['April 13, 2025','April 14, 2025','April 15, 2025']},
+  {id:'h2',name:"New Year's Day",year:'2026',dates:['January 1, 2026']},
+];
+var activeHolId='h1';
+var regs=[{id:9999,uid:'00000003',name:'Krit Poompruk',factory:'FB',factoryName:'Factory B',plantMgr:'Piyanut Saengdee',date:'April 13, 2025',hname:'Songkran 2025',reason:'Urgent production order',status:'pending',ts:'13 Apr 2025',approvedBy:'-'}];
+var hrRecs=[],cu=null,selRole=null,editHid=null;
+function rl(r){return{employee:'Employee',manager:'Plant Manager',hr:'HR / Payroll',admin:'PIT Admin'}[r]||r;}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function mk(l,v){return'<div class="chip"><span>'+l+'</span><strong>'+v+'</strong></div>';}
+function showScreen(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
+function goRole(role){selRole=role;if(role==='employee'){resetLogin('Enter your 8-digit Employee ID');showScreen('s-login');}else{document.getElementById('pin-role-label').innerHTML={manager:'&#127970; Plant Manager',hr:'&#128202; HR / Payroll',admin:'&#9881;&#65039; PIT Admin'}[role];resetPin();showScreen('s-pin');}}
+function resetPin(){for(var i=0;i<6;i++){var b=document.getElementById('p'+i);b.value='';b.className='pin-box';}document.getElementById('pin-hint').textContent='Enter all 6 digits';document.getElementById('pin-hint').className='pin-hint';document.getElementById('pin-btn').disabled=true;setTimeout(function(){document.getElementById('p0').focus();},100);}
+function pinInput(idx){var box=document.getElementById('p'+idx);box.value=box.value.replace(/\D/g,'');if(box.value){box.classList.add('filled');if(idx<5)document.getElementById('p'+(idx+1)).focus();}else box.classList.remove('filled');document.getElementById('pin-btn').disabled=[0,1,2,3,4,5].some(function(i){return!document.getElementById('p'+i).value;});}
+function verifyPin(){var entered=[0,1,2,3,4,5].map(function(i){return document.getElementById('p'+i).value;}).join('');if(entered===PINS[selRole]){if(selRole==='admin')showScreen('s-upload');else if(selRole==='manager'){populateMgrDropdown();showScreen('s-mgr-login');}else{resetLogin('Enter your 8-digit HR ID');showScreen('s-login');}}else{for(var i=0;i<6;i++){var b=document.getElementById('p'+i);b.classList.add('error');b.classList.remove('filled');}document.getElementById('pin-hint').textContent='Incorrect PIN. Please try again.';document.getElementById('pin-hint').className='pin-hint err';document.getElementById('pin-btn').disabled=true;setTimeout(function(){for(var i=0;i<6;i++){var b=document.getElementById('p'+i);b.value='';b.className='pin-box';}document.getElementById('p0').focus();},800);}}
+function parseEmpCSV(file,cb){var r=new FileReader();r.onload=function(e){try{var lines=e.target.result.trim().split('\n').slice(1);var p=lines.map(function(l){var c=l.split(',').map(function(x){return x.replace(/"/g,'').trim();});return{id:c[0],name:c[1],factory:c[2],factoryName:c[3],plantMgr:c[4],role:(c[5]||'employee').toLowerCase()};}).filter(function(u){return u.id&&u.name;});cb(p,null);}catch(e){cb([],e);}};r.readAsText(file);}
+function parseMgrCSV(file,cb){var r=new FileReader();r.onload=function(e){try{var names=e.target.result.trim().split('\n').slice(1).map(function(l){return l.replace(/"/g,'').trim();}).filter(Boolean);cb(names,null);}catch(e){cb([],e);}};r.readAsText(file);}
+function uploadEmp(input){var file=input.files[0];if(!file)return;parseEmpCSV(file,function(p,err){var msg=document.getElementById('up-emp-msg');msg.style.display='block';if(err||!p.length){msg.style.background='#fff5f5';msg.style.color='#ef4444';msg.textContent='Error reading file. Check headers.';}else{users=p;msg.style.background='var(--green-light)';msg.style.color='var(--green)';msg.textContent=p.length+' employees loaded from '+file.name;document.getElementById('up-emp-box').classList.add('done');document.getElementById('up-emp-box').onclick=null;document.getElementById('up-emp-icon').textContent='';document.getElementById('up-emp-label').innerHTML='<strong style="color:var(--green)">'+p.length+' employees loaded</strong>';}});}
+function uploadMgr(input){var file=input.files[0];if(!file)return;parseMgrCSV(file,function(names,err){var msg=document.getElementById('up-mgr-msg');msg.style.display='block';if(err||!names.length){msg.style.background='#fff5f5';msg.style.color='#ef4444';msg.textContent='Error reading file.';}else{managers=names;msg.style.background='var(--green-light)';msg.style.color='var(--green)';msg.textContent=names.length+' managers loaded from '+file.name;document.getElementById('up-mgr-box').classList.add('done');document.getElementById('up-mgr-box').onclick=null;document.getElementById('up-mgr-icon').textContent='';document.getElementById('up-mgr-label').innerHTML='<strong style="color:var(--green)">'+names.length+' managers loaded</strong>';}});}
+function uploadEmp2(input){var file=input.files[0];if(!file)return;parseEmpCSV(file,function(p,err){var msg=document.getElementById('up-emp2-msg');msg.style.display='block';if(err||!p.length){msg.style.color='#ef4444';msg.textContent='Error reading file.';}else{users=p;msg.style.color='var(--green)';msg.textContent=p.length+' employees loaded!';renderAccs(users);}});}
+function uploadMgr2(input){var file=input.files[0];if(!file)return;parseMgrCSV(file,function(names,err){var msg=document.getElementById('up-mgr2-msg');msg.style.display='block';if(err||!names.length){msg.style.color='#ef4444';msg.textContent='Error reading file.';}else{managers=names;msg.style.color='var(--green)';msg.textContent=names.length+' managers loaded!';renderMgrList();}});}
+function goToPitLogin(){resetLogin('Enter your 8-digit PIT Admin ID');showScreen('s-login');}
+function populateMgrDropdown(){var sel=document.getElementById('mgr-name-sel');sel.innerHTML='<option value="">— Select your name —</option>';managers.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o);});document.getElementById('mgr-hint').textContent=managers.length+' manager(s) available';document.getElementById('mgr-signin-btn').disabled=true;document.getElementById('mgr-prev').style.display='none';}
+function onMgrSelect(val){if(val){document.getElementById('mgr-prev-name').textContent=val;document.getElementById('mgr-prev').style.display='block';document.getElementById('mgr-signin-btn').disabled=false;}else{document.getElementById('mgr-prev').style.display='none';document.getElementById('mgr-signin-btn').disabled=true;}}
+function doMgrLogin(){var name=document.getElementById('mgr-name-sel').value;if(!name)return;cu={id:null,name:name,factory:'',factoryName:'',plantMgr:name,role:'manager'};launchApp();}
+function resetLogin(sub){document.getElementById('login-id').value='';document.getElementById('login-sub').textContent=sub||'Enter your 8-digit ID';document.getElementById('id-hint').textContent='Enter your 8-digit ID — no password needed';document.getElementById('id-hint').className='fhint';document.getElementById('id-prev').style.display='none';document.getElementById('wrong-msg').style.display='none';document.getElementById('signin-btn').disabled=true;}
+function backFromLogin(){if(selRole==='employee')showScreen('s-role');else if(selRole==='admin')showScreen('s-upload');else showScreen('s-pin');}
+function onIdInput(val){var clean=val.replace(/\D/g,'');if(clean!==val){document.getElementById('login-id').value=clean;val=clean;}if(val.length<8){document.getElementById('id-hint').className='fhint';document.getElementById('id-hint').textContent='Enter your 8-digit ID — no password needed';document.getElementById('id-prev').style.display='none';document.getElementById('wrong-msg').style.display='none';document.getElementById('signin-btn').disabled=true;return;}var u=users.find(function(x){return x.id===val;});if(u){document.getElementById('id-hint').className='fhint ok';document.getElementById('id-hint').textContent='Found: '+u.name;document.getElementById('prev-name').textContent=u.name;document.getElementById('prev-info').textContent=u.factoryName+(u.plantMgr&&u.plantMgr!=='-'?' · Mgr: '+u.plantMgr:'');document.getElementById('prev-badge').innerHTML='<span class="badge badge-blue" style="font-size:10px">'+rl(u.role)+'</span>';document.getElementById('id-prev').style.display='block';var ok=(selRole==='admin'&&u.role==='admin'&&u.plantMgr==='ares.sun')||(selRole!=='admin'&&selRole===u.role);document.getElementById('wrong-msg').style.display=ok?'none':'block';document.getElementById('wrong-msg').textContent=selRole==='admin'?'This ID is not authorized as PIT Admin (Plant Manager must be ares.sun).':'This ID does not match the selected role.';document.getElementById('signin-btn').disabled=!ok;}else{document.getElementById('id-hint').className='fhint err';document.getElementById('id-hint').textContent='ID not found — please check and try again';document.getElementById('id-prev').style.display='none';document.getElementById('wrong-msg').style.display='none';document.getElementById('signin-btn').disabled=true;}}
+function doLogin(){var v=document.getElementById('login-id').value.trim();var u=users.find(function(x){return x.id===v;});if(!u)return;cu=u;launchApp();}
+function launchApp(){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById('app').style.display='block';document.getElementById('hdr-name').textContent=cu.name;document.getElementById('hdr-role').textContent=rl(cu.role);['employee','manager','hr','admin'].forEach(function(r){document.getElementById('v-'+r).style.display=r===cu.role?'block':'none';});if(cu.role==='employee')initEmp();if(cu.role==='manager')initMgr();if(cu.role==='hr')initHR();if(cu.role==='admin')initAdm();}
+function doLogout(){cu=null;selRole=null;document.getElementById('app').style.display='none';showScreen('s-role');}
+function st(tab,role,e){document.querySelectorAll('#v-'+role+' .pg').forEach(function(p){p.classList.remove('active');});document.getElementById('t-'+tab).classList.add('active');document.querySelectorAll('#v-'+role+' .nav-tab').forEach(function(b){b.classList.remove('active');});if(e&&e.target)e.target.classList.add('active');if(tab==='h-exp')buildHRPrev();if(tab==='m-done')renderMDone();if(tab==='a-acc'){renderAccs(users);renderMgrList();}}
+function initEmp(){var h=holidays.find(function(x){return x.id===activeHolId;});var sel=document.getElementById('date-sel');sel.innerHTML='<option value="">— Select date —</option>';if(!h){document.getElementById('no-hol').style.display='block';document.getElementById('hol-open').style.display='none';return;}document.getElementById('no-hol').style.display='none';document.getElementById('hol-open').style.display='block';document.getElementById('b-title').textContent='Holiday Work Registration — '+h.name+' '+h.year;document.getElementById('b-sub').textContent=h.dates.join(' · ');h.dates.forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent=d;sel.appendChild(o);});document.getElementById('emp-chips').innerHTML=mk('Employee ID',cu.id)+mk('Full Name',cu.name)+mk('Factory',cu.factory)+mk('Factory Name',cu.factoryName)+mk('Plant Manager',cu.plantMgr||'-');renderEStatus();}
+function chkReg(){document.getElementById('reg-btn').disabled=!(document.getElementById('date-sel').value&&document.getElementById('reg-reason').value.trim());}
+function submitReg(){var d=document.getElementById('date-sel').value;var r=document.getElementById('reg-reason').value.trim();var h=holidays.find(function(x){return x.id===activeHolId;});if(regs.find(function(x){return x.uid===cu.id&&x.date===d;})){alert('Already registered for this date!');return;}regs.push({id:Date.now(),uid:cu.id,name:cu.name,factory:cu.factory,factoryName:cu.factoryName,plantMgr:cu.plantMgr,date:d,hname:(h?h.name+' '+h.year:'Holiday'),reason:r,status:'pending',ts:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}),approvedBy:'-'});document.getElementById('reg-form').style.display='none';document.getElementById('reg-ok').style.display='block';document.getElementById('date-sel').value='';document.getElementById('reg-reason').value='';document.getElementById('reg-btn').disabled=true;renderEStatus();setTimeout(function(){document.getElementById('reg-ok').style.display='none';document.getElementById('reg-form').style.display='block';},3500);}
+function renderEStatus(){var mine=regs.filter(function(r){return r.uid===cu.id;});if(!mine.length){document.getElementById('es-empty').style.display='block';document.getElementById('es-tbl').style.display='none';return;}document.getElementById('es-empty').style.display='none';document.getElementById('es-tbl').style.display='block';document.getElementById('es-body').innerHTML=mine.map(function(r){return'<tr><td>'+r.hname+'</td><td>'+r.ts+'</td><td>'+r.factoryName+'</td><td>'+r.plantMgr+'</td><td><span class="bdg bdg-'+r.status+'">'+cap(r.status)+'</span></td></tr>';}).join('');}
+function initMgr(){document.getElementById('mgr-name-hdr').textContent=cu.name;renderMPend();}
+function renderMPend(){var pend=regs.filter(function(r){return r.plantMgr===cu.name&&r.status==='pending';});var all=regs.filter(function(r){return r.plantMgr===cu.name;});document.getElementById('ms-p').textContent=pend.length;document.getElementById('ms-a').textContent=all.filter(function(r){return r.status==='approved';}).length;document.getElementById('ms-t').textContent=all.length;if(!pend.length){document.getElementById('mp-empty').style.display='block';document.getElementById('mp-tbl').style.display='none';return;}document.getElementById('mp-empty').style.display='none';document.getElementById('mp-tbl').style.display='block';document.getElementById('mp-count').textContent=pend.length+' pending';document.getElementById('mp-body').innerHTML=pend.map(function(r){return'<tr><td><input type="checkbox" class="rck" data-id="'+r.id+'" style="accent-color:var(--green);width:15px;height:15px;cursor:pointer"></td><td class="id-mono">'+r.uid+'</td><td>'+r.name+'</td><td>'+r.factoryName+'</td><td>'+r.date+'</td><td style="font-size:12px;color:var(--muted)">'+r.reason+'</td><td style="display:flex;gap:5px"><button class="ab ab-sm ab-green" onclick="appOne('+r.id+')">&#10003;</button><button class="ab ab-sm ab-danger" onclick="rejOne('+r.id+')">&#10007;</button></td></tr>';}).join('');document.getElementById('chk-all').checked=false;}
+function renderMDone(){var done=regs.filter(function(r){return r.plantMgr===cu.name&&r.status==='approved';});if(!done.length){document.getElementById('md-empty').style.display='block';document.getElementById('md-tbl').style.display='none';return;}document.getElementById('md-empty').style.display='none';document.getElementById('md-tbl').style.display='block';document.getElementById('md-body').innerHTML=done.map(function(r){return'<tr><td class="id-mono">'+r.uid+'</td><td>'+r.name+'</td><td>'+r.factoryName+'</td><td>'+r.date+'</td><td>'+r.reason+'</td></tr>';}).join('');}
+function appOne(id){var r=regs.find(function(x){return x.id===id;});if(r){r.status='approved';r.approvedBy=cu.name;}renderMPend();}
+function rejOne(id){var r=regs.find(function(x){return x.id===id;});if(r)r.status='rejected';renderMPend();}
+function togAll(cb){document.querySelectorAll('.rck').forEach(function(c){c.checked=cb.checked;});}
+function bulkApp(){[...document.querySelectorAll('.rck:checked')].forEach(function(c){var r=regs.find(function(x){return x.id===+c.dataset.id;});if(r){r.status='approved';r.approvedBy=cu.name;}});renderMPend();}
+function bulkRej(){[...document.querySelectorAll('.rck:checked')].forEach(function(c){var r=regs.find(function(x){return x.id===+c.dataset.id;});if(r)r.status='rejected';});renderMPend();}
+function sendHR(){var done=regs.filter(function(r){return r.plantMgr===cu.name&&r.status==='approved';});if(!done.length){alert('No approved records yet.');return;}done.forEach(function(r){if(!hrRecs.find(function(x){return x.id===r.id;}))hrRecs.push(r);});alert('Sent '+done.length+' record(s) to HR/Payroll!');}
+function initHR(){renderHRTbl(hrRecs);}
+function refreshHRSt(){document.getElementById('hs-a').textContent=hrRecs.length;document.getElementById('hs-f').textContent=new Set(hrRecs.map(function(r){return r.factory;})).size;document.getElementById('hs-p').textContent=regs.filter(function(r){return r.status==='pending';}).length;}
+function renderHRTbl(recs){refreshHRSt();document.getElementById('hr-cnt').textContent=recs.length+' employee(s)';if(!recs.length){document.getElementById('hr-empty').style.display='block';document.getElementById('hr-wrap').style.display='none';return;}document.getElementById('hr-empty').style.display='none';document.getElementById('hr-wrap').style.display='block';document.getElementById('hr-body').innerHTML=recs.map(function(r){return'<tr><td class="id-mono">'+r.uid+'</td><td>'+r.name+'</td><td>'+r.factory+'</td><td>'+r.factoryName+'</td><td>'+r.plantMgr+'</td><td>'+r.date+'</td><td>'+r.approvedBy+'</td><td><span class="bdg bdg-appr">Pay Bonus</span></td></tr>';}).join('');}
+function filtHR(v){renderHRTbl(hrRecs.filter(function(r){return r.name.toLowerCase().includes(v.toLowerCase())||r.uid.includes(v);}));}
+function buildHRPrev(){var div=document.getElementById('hr-prev');if(!hrRecs.length){div.innerHTML='<p style="color:var(--muted)">No data yet.</p>';return;}div.innerHTML='<table style="width:100%;border-collapse:collapse"><thead style="background:var(--bg)"><tr>'+['ID','Name','Factory','Factory Name','Plant Manager','Holiday Date','Approved By'].map(function(h){return'<th style="padding:7px;border:1px solid var(--border);text-align:left">'+h+'</th>';}).join('')+'</tr></thead><tbody>'+hrRecs.map(function(r){return'<tr>'+[r.uid,r.name,r.factory,r.factoryName,r.plantMgr,r.date,r.approvedBy].map(function(c){return'<td style="padding:7px;border:1px solid var(--border)">'+c+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table>';}
+function expCSV(){if(!hrRecs.length){alert('No data.');return;}var rows=[['ID','Name','Factory','Factory Name','Plant Manager','Holiday Date','Approved By']].concat(hrRecs.map(function(r){return[r.uid,r.name,r.factory,r.factoryName,r.plantMgr,r.date,r.approvedBy];}));var blob=new Blob([rows.map(function(r){return r.map(function(c){return'"'+c+'"';}).join(',');}).join('\n')],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='holiday_bonus_payroll.csv';a.click();}
+function copyCl(){if(!hrRecs.length){alert('No data.');return;}var rows=[['ID','Name','Factory','Factory Name','Plant Manager','Holiday Date','Approved By']].concat(hrRecs.map(function(r){return[r.uid,r.name,r.factory,r.factoryName,r.plantMgr,r.date,r.approvedBy];}));navigator.clipboard.writeText(rows.map(function(r){return r.join('\t');}).join('\n'));alert('Copied!');}
+function initAdm(){renderHL();renderAP();renderAccs(users);renderMgrList();}
+function renderHL(){var list=document.getElementById('hol-list');if(!holidays.length){list.innerHTML='<div class="empty"><div class="empty-i">&#128197;</div>No holidays yet.</div>';return;}list.innerHTML=holidays.map(function(h){return'<div class="hol-item '+(h.id===activeHolId?'actv':'')+'"><div><h4>'+h.name+' '+h.year+(h.id===activeHolId?' <span class="badge badge-blue" style="font-size:10px">ACTIVE</span>':'')+'</h4><p>'+h.dates.length+' date(s)</p><div class="date-chips">'+h.dates.map(function(d){return'<span class="dc">'+d+'</span>';}).join('')+'</div></div><div class="hol-acts"><button class="ab ab-sm ab-outline" onclick="openEH(\''+h.id+'\')">Edit</button><button class="ab ab-sm ab-danger" onclick="delH(\''+h.id+'\')">Delete</button></div></div>';}).join('');}
+function renderAP(){var sel=document.getElementById('act-pick');sel.innerHTML='<option value="">— None (closed) —</option>';holidays.forEach(function(h){var o=document.createElement('option');o.value=h.id;o.textContent=h.name+' '+h.year;if(h.id===activeHolId)o.selected=true;sel.appendChild(o);});var ah=holidays.find(function(h){return h.id===activeHolId;});document.getElementById('act-lbl').textContent=ah?(ah.name+' '+ah.year):'None';}
+function setAct(){activeHolId=document.getElementById('act-pick').value||null;renderHL();renderAP();var ah=holidays.find(function(h){return h.id===activeHolId;});alert(ah?'"'+ah.name+' '+ah.year+'" is now active!':'Registration is now closed.');}
+function delH(id){if(!confirm('Delete this holiday?'))return;holidays=holidays.filter(function(h){return h.id!==id;});if(activeHolId===id)activeHolId=null;renderHL();renderAP();}
+function openHM(){editHid=null;document.getElementById('hm-ttl').textContent='Add Holiday';document.getElementById('hm-name').value='';document.getElementById('hm-year').value=new Date().getFullYear();document.getElementById('hm-dates').innerHTML='';addDR();addDR();document.getElementById('hm-modal').classList.add('open');}
+function openEH(id){editHid=id;var h=holidays.find(function(x){return x.id===id;});document.getElementById('hm-ttl').textContent='Edit Holiday';document.getElementById('hm-name').value=h.name;document.getElementById('hm-year').value=h.year;document.getElementById('hm-dates').innerHTML='';h.dates.forEach(function(d){addDR(d);});document.getElementById('hm-modal').classList.add('open');}
+function closeHM(){document.getElementById('hm-modal').classList.remove('open');}
+function addDR(v){v=v||'';var row=document.createElement('div');row.className='dir';row.innerHTML='<input type="text" placeholder="e.g. April 13, 2025" value="'+v+'"/><button class="rdb" onclick="this.parentElement.remove()">&#215;</button>';document.getElementById('hm-dates').appendChild(row);}
+function saveHol(){var name=document.getElementById('hm-name').value.trim();var year=document.getElementById('hm-year').value.trim();var dates=[...document.querySelectorAll('#hm-dates input')].map(function(i){return i.value.trim();}).filter(Boolean);if(!name){alert('Enter a holiday name.');return;}if(!dates.length){alert('Add at least one date.');return;}if(editHid){var h=holidays.find(function(x){return x.id===editHid;});h.name=name;h.year=year;h.dates=dates;}else holidays.push({id:'h'+Date.now(),name:name,year:year,dates:dates});closeHM();renderHL();renderAP();}
+function renderAccs(list){document.getElementById('acc-cnt').textContent=list.length+' users';document.getElementById('acc-body').innerHTML=list.map(function(u){return'<tr><td class="id-mono">'+u.id+'</td><td>'+u.name+'</td><td>'+u.factory+'</td><td>'+u.factoryName+'</td><td>'+u.plantMgr+'</td><td><span class="badge badge-blue" style="font-size:10px">'+rl(u.role)+'</span></td></tr>';}).join('');}
+function renderMgrList(){if(!managers.length){document.getElementById('mgr-list-empty').style.display='block';document.getElementById('mgr-list-tbl').style.display='none';return;}document.getElementById('mgr-list-empty').style.display='none';document.getElementById('mgr-list-tbl').style.display='table';document.getElementById('mgr-list-body').innerHTML=managers.map(function(n,i){return'<tr><td style="color:var(--muted)">'+(i+1)+'</td><td>'+n+'</td></tr>';}).join('');}
+function filtAcc(v){renderAccs(users.filter(function(u){return u.name.toLowerCase().includes(v.toLowerCase())||u.id.includes(v);}));}
+</script>
+</body>
+</html>
